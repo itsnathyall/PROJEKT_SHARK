@@ -6,20 +6,18 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 require('dotenv').config();
-const {User, Story, P} = require("./db.js");
+const {User, Story, connectToDb} = require("./db.js");
+const cors = require('cors');
 
 
-
-// MongoDB setup
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log('MongoDB connection error:', err));
-
+connectToDb();
 
 // Express Middleware
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(cors());
 
 // Session Middleware
 app.use(session({
@@ -60,45 +58,17 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-// Routes
+const authRoute = require('./Routes/auth.js')
+app.use('/auth', authRoute,)
 
-// Register Route
-app.post('/register', async (req, res) => {
-    const { email, password, name, lastname, username } = req.body;
+const postsRoute = require('./Routes/posts.js')
+app.use('/posts', postsRoute,)
 
-  // Validate inputs
-    if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' });
-    }
-
-    try {
-        if (await User.findOne({ email })) {
-        return res.status(400).json({ message: 'User already exists' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword, name, lastname, username });
-    await newUser.save();
-    res.status(201).json({ message: 'User registered successfully' });
-} catch (error) {
-    res.status(500).json({ message: 'Error registering user' });
-}
-});
-
-// Login Route
-app.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json({ message: 'Logged in', user: { id: req.user.id, email: req.user.email } });
-});
-
-// Logout Route
-app.post('/logout', (req, res) => {
-    req.logout(err => {
-    if (err) return res.status(500).json({ message: 'Error logging out' });
-    res.json({ message: 'Logged out successfully' });
-    });
-});
+const usersRoute = require('./Routes/users.js')
+app.use('/users', usersRoute)
 
 // Start Server
 app.listen(3000, () => {
     console.log('Server running on port 3000');
 });
+
