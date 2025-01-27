@@ -1,5 +1,4 @@
-node_modules/
-npm-debug.log*
-.env
-.DS_Store
-.vscode/
+/backend/node_modules/
+/backend/npm-debug.log*
+/backend/.env
+/backend/.DS_Store
