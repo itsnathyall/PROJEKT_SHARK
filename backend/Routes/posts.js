@@ -38,4 +38,9 @@ router.put("/:id", async (req,res)=>{
     }
 })
 
+//Like a post
+
+
+
+
 module.exports = router;
