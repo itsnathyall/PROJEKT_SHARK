@@ -8,26 +8,22 @@ const HomePage = () => {
   const [apiError, setApiError] = useState(null);
   const navigate = useNavigate();
 
-  // Check if user is authenticated
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      navigate('/auth'); // Redirect to login page if no authToken
+      navigate('/auth');
     }
   }, [navigate]);
 
-  // Fetch recent posts from backend when component mounts
   useEffect(() => {
     const fetchPosts = async () => {
       const authToken = localStorage.getItem('authToken');
-      if (!authToken) return; // If no token, don't attempt to fetch posts.
+      if (!authToken) return;
 
       try {
         const response = await fetch('http://localhost:3000/api/posts', {
           method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${authToken}`, // Use auth token
-          },
+          headers: { 'Authorization': `Bearer ${authToken}` },
         });
 
         if (!response.ok) {
@@ -35,28 +31,26 @@ const HomePage = () => {
         }
 
         const data = await response.json();
-        setPosts(data); // Update posts state
+        setPosts(data);
       } catch (error) {
-        setApiError(error.message); // Handle error
+        setApiError(error.message);
       } finally {
-        setLoading(false); // Stop loading once data is fetched
+        setLoading(false);
       }
     };
 
     fetchPosts();
   }, []);
 
-  // Handle creating a new post
   const handleCreatePost = async () => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      navigate('/auth'); // Redirect if not logged in
+      navigate('/auth');
       return;
     }
 
     try {
       const newPost = { title: 'New Post', content: 'This is a newly created post.' };
-
       const response = await fetch('http://localhost:3000/api/posts', {
         method: 'POST',
         headers: {
@@ -67,88 +61,83 @@ const HomePage = () => {
       });
 
       const data = await response.json();
-
       if (response.ok) {
-        setPosts([data, ...posts]); // Prepend new post to the list
+        setPosts([data, ...posts]);
       } else {
         throw new Error('Failed to create post');
       }
     } catch (error) {
-      setApiError(error.message); // Handle error
+      setApiError(error.message);
     }
   };
 
-  // Handle logout
   const handleLogout = () => {
     localStorage.removeItem('authToken');
-    navigate('/auth'); // Redirect to login page
+    navigate('/auth');
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] flex flex-col items-center justify-start">
-      {/* Navigation Bar */}
-      <nav className="w-full bg-[#2C3E50] p-6 text-white">
+    <div className="relative min-h-screen flex flex-col items-center justify-start bg-[#121a2a] overflow-hidden">
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+        <motion.div className="w-[500px] h-[200px] bg-[#ff6b6b]/40 blur-[100px] rounded-full absolute top-10 left-10" />
+        <motion.div className="w-[400px] h-[150px] bg-[#f6f1eb]/30 blur-[80px] rounded-full absolute bottom-10 right-10" />
+      </motion.div>
+
+      <nav className="w-full bg-[#ffffff0a] backdrop-blur-md p-6 text-white shadow-lg border border-[#3e2e4a] rounded-b-3xl">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-semibold">InkSpire</h1>
+          <h1 className="text-3xl font-extrabold tracking-wide text-[#f6f1eb]">InkSpire</h1>
           <div className="flex gap-6 items-center">
-            <Link to="/profile" className="hover:text-[#a4b0be] transition-colors">Profile</Link>
-            <button
-              onClick={handleLogout}
-              className="bg-[#E74C3C] text-white px-6 py-2 rounded-lg hover:bg-[#c0392b] transition-colors"
-            >
+            <Link to="/profile" className="text-[#f6f1eb] hover:text-[#ff6b6b] transition-colors">Profile</Link>
+            <button onClick={handleLogout} className="bg-[#ff6b6b] text-white px-6 py-2 rounded-lg hover:bg-[#c0392b] transition-all">
               Logout
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Main Section */}
-      <div className="flex-grow w-full max-w-3xl p-6 sm:p-8 md:p-12">
-        <motion.h2
-          className="text-4xl font-extrabold text-center text-[#2C3E50] mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          Welcome to InkSpire
-        </motion.h2>
-        <p className="text-lg text-center text-[#34495E] mb-8">
-          Your ultimate collaborative writing platform, where creativity meets collaboration.
-        </p>
+      <motion.div
+        className="relative w-full max-w-3xl p-8 sm:p-10 md:p-12 text-center"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        <h2 className="text-5xl font-extrabold text-[#f6f1eb] tracking-wide mb-6">Welcome to InkSpire</h2>
+        <p className="text-lg text-[#f6f1eb99] mb-8">Your ultimate collaborative writing platform.</p>
 
-        {/* Create Post Button */}
         <motion.button
           onClick={handleCreatePost}
-          className="bg-[#3498DB] text-white px-6 py-3 rounded-lg shadow-lg hover:bg-[#2980B9] transition-all duration-300"
+          className="bg-[#ff6b6b] text-white px-6 py-3 rounded-lg shadow-lg hover:bg-[#c0392b] transition-all"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
           Create New Post
         </motion.button>
 
-        {/* Posts Section */}
-        <div className="mt-10 p-6 bg-white rounded-lg shadow-lg">
-          <h3 className="text-xl font-semibold text-[#2C3E50] mb-4">Recent Posts</h3>
-
+        <div className="mt-10 p-6 bg-[#ffffff0a] backdrop-blur-md rounded-xl shadow-lg border border-[#3e2e4a]">
+          <h3 className="text-xl font-semibold text-[#f6f1eb] mb-4">Recent Posts</h3>
           {loading ? (
-            <div className="text-center text-[#34495E]">Loading posts...</div>
+            <p className="text-[#f6f1eb99]">Loading posts...</p>
           ) : apiError ? (
-            <div className="text-center text-red-500">{apiError}</div>
+            <p className="text-red-400">{apiError}</p>
           ) : (
-            <div className="space-y-4 text-[#34495E]">
+            <div className="space-y-4 text-[#f6f1eb]">
               {posts.map((post) => (
-                <div key={post.id} className="border-b pb-2">
+                <div key={post.id} className="border-b border-[#ffffff30] pb-2">
                   <h4 className="text-lg font-semibold">{post.title}</h4>
-                  <p className="text-sm">{post.content}</p>
+                  <p className="text-sm text-[#f6f1eb99]">{post.content}</p>
                 </div>
               ))}
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Footer */}
-      <footer className="w-full bg-[#2C3E50] p-4 text-center text-[#BDC3C7] mt-8">
+      <footer className="w-full bg-[#ffffff0a] p-4 text-center text-[#f6f1eb99] mt-8 border-t border-[#3e2e4a]">
         <p>© 2025 InkSpire. All Rights Reserved.</p>
       </footer>
     </div>
@@ -156,6 +145,7 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
 
 
 
