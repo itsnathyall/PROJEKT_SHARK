@@ -23,7 +23,7 @@ const AuthPage = () => {
 
       if (response.ok) {
         console.log("Login successful:", data);
-        localStorage.setItem("token", data.token); // Store JWT (if using auth)
+        localStorage.setItem("token", data.token);
         
         // Redirect to home page
         console.log("Navigating to /home");
@@ -39,7 +39,6 @@ const AuthPage = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[#121a2a] overflow-hidden">
-      {/* Background Light Trails */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
         <motion.div
           initial={{ x: -50, opacity: 0.2 }}
