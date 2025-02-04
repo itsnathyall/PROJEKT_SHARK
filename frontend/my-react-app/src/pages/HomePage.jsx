@@ -8,6 +8,8 @@ const HomePage = () => {
   const [apiError, setApiError] = useState(null);
   const navigate = useNavigate();
 
+  const URL = 'http://localhost:3000';
+
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
@@ -18,20 +20,21 @@ const HomePage = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       const authToken = localStorage.getItem('authToken');
-      if (!authToken) return;
-
       try {
-        const response = await fetch('http://localhost:3000/api/posts', {
+        const response = await fetch(`${URL}/posts`, {
           method: 'GET',
-          headers: { 'Authorization': `Bearer ${authToken}` },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch posts');
+          throw new Error("Failed to fetch posts");
         }
 
         const data = await response.json();
-        setPosts(data);
+        setPosts(data); // Установка данных в состояние
       } catch (error) {
         setApiError(error.message);
       } finally {
@@ -39,7 +42,7 @@ const HomePage = () => {
       }
     };
 
-    fetchPosts();
+    fetchPosts(); // Вызов функции для загрузки постов
   }, []);
 
   const handleCreatePost = async () => {
@@ -51,7 +54,7 @@ const HomePage = () => {
 
     try {
       const newPost = { title: 'New Post', content: 'This is a newly created post.' };
-      const response = await fetch('http://localhost:3000/api/posts', {
+      const response = await fetch('http://localhost:3000/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,9 +130,10 @@ const HomePage = () => {
           ) : (
             <div className="space-y-4 text-[#f6f1eb]">
               {posts.map((post) => (
-                <div key={post.id} className="border-b border-[#ffffff30] pb-2">
+                <div key={post._id} className="border-b border-[#ffffff30] pb-2">
                   <h4 className="text-lg font-semibold">{post.title}</h4>
-                  <p className="text-sm text-[#f6f1eb99]">{post.content}</p>
+                  <p className="text-sm text-[#f6f1eb99]">{post.body}</p>
+                  <p className="text-sm text-[#f6f1eb99]">{post.description}</p>
                 </div>
               ))}
             </div>
