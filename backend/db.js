@@ -40,8 +40,8 @@ const storiesSchema = new mongoose.Schema({
     createdAt: {type: Date, default: Date.now},
     description: {type:String, required:true},
     likes: {type: Number, default:0},
+    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     comments: [commentSchema]
-    //likes: {type:Boolean}
 })
 
 const User = mongoose.model('User', userSchema);

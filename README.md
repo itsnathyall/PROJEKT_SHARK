@@ -98,6 +98,51 @@ Example Response:
   ```
 - **Response:** Confirmation of successful update.
 
+------
+
+## 💬 **Comments**
+
+### **1. Add a Comment**
+- **Endpoint:** `POST /posts/:id/comments`
+- **Description:** Add a comment to a specific post.
+- **Headers:**
+  ```
+  Authorization: Bearer <authToken>
+  ```
+- **Body:**
+  ```json
+  {
+    "commentBody": "This is a comment."
+  }
+  ```
+- **Response:** Confirmation of successful comment addition with the updated post.
+
+---
+
+## 👍 **Likes**
+
+### **1. Toggle Like (Add/Remove Like)**
+- **Endpoint:** `POST /posts/:id/like`
+- **Description:** Add or remove a like for a specific post. A user can only like a post once. If the user has already liked the post, this will remove the like.
+- **Headers:**
+  ```
+  Authorization: Bearer <authToken>
+  ```
+- **Response:**
+  ```json
+  {
+    "message": "Like added.",
+    "likes": 10
+  }
+  ```
+  or
+  ```json
+  {
+    "message": "Like removed.",
+    "likes": 9
+  }
+  ```
+
 ---
 
 ## 👤 **Users**
