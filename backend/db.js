@@ -36,7 +36,7 @@ const storiesSchema = new mongoose.Schema({
     title:{type:String, required:true},
     body:{type:String, required:true},
     accepted_proposals:[{type:proposalsSchema}],
-    user_id:{type:String},
+    user_id:{type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
     createdAt: {type: Date, default: Date.now},
     description: {type:String, required:true},
     likes: {type: Number, default:0},

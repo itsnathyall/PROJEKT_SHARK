@@ -3,7 +3,7 @@ const passport = require('passport');
 const bcrypt = require('bcryptjs');
 const {User, Story, ConnectToDb} = require("../db.js");
 const {caretTrimReplace} = require("semver/internal/re");
-const authenticateToken = require("./auth.js")
+const { authenticateToken } = require("./auth.js");
 require('dotenv').config();
 
 const router = express.Router();
@@ -11,17 +11,19 @@ const router = express.Router();
 
 //Posting Routes
 
-//Create a post
-router.post('/', authenticateToken, async (req,res)=>{
-    const newStory = new Story({
-        ...req.body,
-        user_id: req.user
-    });
+// Create a post
+router.post('/', authenticateToken, async (req, res) => {
     try {
+        const newStory = new Story({
+            ...req.body,
+            user_id: req.user.id,
+        });
+
         const savedStory = await newStory.save();
         res.status(200).json(savedStory);
-    }catch(err){
-        res.status(500).json({message: 'Error creating post'});
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error creating post', error: err.message });
     }
 });
 
@@ -37,7 +39,6 @@ router.get('/', async (req, res) => {
 });
 
 //Update a post
-
 router.put("/:id", async (req,res)=>{
     try{
         const story = await Story.findById(req.params.id);

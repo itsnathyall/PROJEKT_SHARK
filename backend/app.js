@@ -11,8 +11,8 @@ connectToDb();
 
 app.use(express.json());
 
-const authRoute = require('./Routes/auth.js')
-app.use('/auth', authRoute,)
+const { authRouter } = require('./Routes/auth.js');
+app.use('/auth', authRouter);
 
 const postsRoute = require('./Routes/posts.js')
 app.use('/posts', postsRoute,)

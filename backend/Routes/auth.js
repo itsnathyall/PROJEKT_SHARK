@@ -56,7 +56,7 @@ router.post('/login', async (req, res) => {
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
     const authToken = req.header('Authorization');
-    if (!tokenauthToken) return res.status(401).json({ message: 'Access denied' });
+    if (!authToken) return res.status(401).json({ message: 'Access denied' });
 
     try {
         const decoded = jwt.verify(authToken.replace('Bearer ', ''), process.env.JWT_SECRET);
@@ -72,4 +72,7 @@ router.post('/logout', authenticateToken, (req, res) => {
     res.json({ message: 'Logged out successfully' });
 });
 
-module.exports = router;
+module.exports = {
+    authRouter: router,
+    authenticateToken
+};

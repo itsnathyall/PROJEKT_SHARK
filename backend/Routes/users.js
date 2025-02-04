@@ -46,7 +46,6 @@ router.delete('/:id', async (req,res) => {
 })
 
 //Get a user
-
 router.get('/:id', async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -79,7 +78,6 @@ router.put('/:id/follow', async (req,res) => {
 })
 
 //Unfollow
-
 router.put('/:id/unfollow', async (req,res) => {
     if(req.body._id !== req.params.id){
         try{
