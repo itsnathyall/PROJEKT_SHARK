@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     following: {type: Array, default: []}
 });
 
-
+// propose schema
 const proposalsSchema = new mongoose.Schema({
     story_id:{type:Number},
     user_id:{type:Number},
@@ -24,6 +24,14 @@ const proposalsSchema = new mongoose.Schema({
     status:{type:Boolean}
 })
 
+// Comments Schema
+const commentSchema = new mongoose.Schema({
+    commentOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    commentBody: { type: String, required: true },
+    commentCreated: { type: Date, default: Date.now }
+});
+
+// Post Schema
 const storiesSchema = new mongoose.Schema({
     title:{type:String, required:true},
     body:{type:String, required:true},
@@ -31,7 +39,9 @@ const storiesSchema = new mongoose.Schema({
     user_id:{type:String},
     createdAt: {type: Date, default: Date.now},
     description: {type:String, required:true},
-    likes: {type:Boolean}
+    likes: {type: Number, default:0},
+    comments: [commentSchema]
+    //likes: {type:Boolean}
 })
 
 const User = mongoose.model('User', userSchema);
@@ -40,7 +50,7 @@ const Proposal = mongoose.model('Proposal', proposalsSchema);
 
 module.exports = {
     connectToDb: async () => {
-        await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+        await mongoose.connect(process.env.MONGODB_URI)
     },
     User,
     Story,
