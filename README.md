@@ -31,6 +31,17 @@
   ```
 - **Response:** Returns `authToken` for authorization.
 
+**Where to Get the Token:**  
+After a successful login, the response will include an `authToken`. Copy this token to authenticate your requests.
+
+Example Response:
+```json
+{
+  "message": "Login successful",
+  "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
 ---
 
 ### **3. Logout User**
