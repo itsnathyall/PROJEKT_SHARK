@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -48,6 +51,11 @@ const ProfilePage = () => {
   if (loading) return <p className="text-center text-white">Loading profile...</p>;
   if (error) return <p className="text-center text-red-400">Error: {error}</p>;
 
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    navigate('/auth');
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#121a2a] to-[#1b2436] text-[#f6f1eb] p-8">
       <div className="bg-[#ffffff0a] backdrop-blur-md p-10 rounded-xl shadow-lg border border-[#3e2e4a] max-w-4xl w-full">
@@ -85,7 +93,7 @@ const ProfilePage = () => {
           <button className="px-4 py-2 rounded-lg bg-[#ff6b6b] text-white hover:bg-[#c0392b] transition-all">
             Edit Profile
           </button>
-          <button className="px-4 py-2 rounded-lg bg-[#ff6b6b] text-white hover:bg-[#c0392b] transition-all">
+          <button  onClick={handleLogout} className="px-4 py-2 rounded-lg bg-[#ff6b6b] text-white hover:bg-[#c0392b] transition-all">
             Logout
           </button>
         </div>
