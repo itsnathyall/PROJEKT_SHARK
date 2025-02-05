@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { FaPlusCircle, FaUserCircle, FaFire } from 'react-icons/fa';
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   const URL = 'http://localhost:3000';
@@ -18,10 +20,10 @@ const HomePage = () => {
   }, [navigate]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchUser = async () => {
       const authToken = localStorage.getItem('authToken');
       try {
-        const response = await fetch(`${URL}/posts`, {
+        const response = await fetch(`${URL}/users/me`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -30,11 +32,34 @@ const HomePage = () => {
         });
 
         if (!response.ok) {
+          throw new Error("Failed to fetch user");
+        }
+
+        const data = await response.json();
+        setUser(data);
+      } catch (error) {
+        setApiError(error.message);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch(`${URL}/posts`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
           throw new Error("Failed to fetch posts");
         }
 
         const data = await response.json();
-        setPosts(data); // Установка данных в состояние
+        setPosts(data);
       } catch (error) {
         setApiError(error.message);
       } finally {
@@ -42,37 +67,8 @@ const HomePage = () => {
       }
     };
 
-    fetchPosts(); // Вызов функции для загрузки постов
+    fetchPosts();
   }, []);
-
-  const handleCreatePost = async () => {
-    const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
-      navigate('/auth');
-      return;
-    }
-
-    try {
-      const newPost = { title: 'New Post', content: 'This is a newly created post.' };
-      const response = await fetch('http://localhost:3000/posts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(newPost),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setPosts([data, ...posts]);
-      } else {
-        throw new Error('Failed to create post');
-      }
-    } catch (error) {
-      setApiError(error.message);
-    }
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -95,6 +91,12 @@ const HomePage = () => {
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <h1 className="text-3xl font-extrabold tracking-wide text-[#f6f1eb]">InkSpire</h1>
           <div className="flex gap-6 items-center">
+            {user && (
+              <div className="flex items-center gap-2 text-[#f6f1eb]">
+                <FaUserCircle className="text-2xl" />
+                <span>{user.username}</span>
+              </div>
+            )}
             <Link to="/profile" className="text-[#f6f1eb] hover:text-[#ff6b6b] transition-colors">Profile</Link>
             <button onClick={handleLogout} className="bg-[#ff6b6b] text-white px-6 py-2 rounded-lg hover:bg-[#c0392b] transition-all">
               Logout
@@ -112,44 +114,42 @@ const HomePage = () => {
         <h2 className="text-5xl font-extrabold text-[#f6f1eb] tracking-wide mb-6">Welcome to InkSpire</h2>
         <p className="text-lg text-[#f6f1eb99] mb-8">Your ultimate collaborative writing platform.</p>
 
-        <motion.button
-          onClick={handleCreatePost}
-          className="bg-[#ff6b6b] text-white px-6 py-3 rounded-lg shadow-lg hover:bg-[#c0392b] transition-all"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Create New Post
-        </motion.button>
+        <div className="flex justify-center items-center mt-10">
+          <motion.button
+            className="bg-[#ff6b6b] flex items-center gap-2 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-[#c0392b] transition-all"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <FaPlusCircle className="text-lg" /> Create New Post
+          </motion.button>
+        </div>
 
-        {/* <div className="mt-10 p-6 bg-[#ffffff0a] backdrop-blur-md rounded-xl shadow-lg border border-[#3e2e4a]">
-          <h3 className="text-xl font-semibold text-[#f6f1eb] mb-4">Recent Posts</h3>
+        <div className="mt-10 p-6 bg-[#ffffff0a] backdrop-blur-md rounded-xl shadow-lg border border-[#3e2e4a]">
+          <h3 className="text-xl font-semibold text-[#f6f1eb] mb-4">Trending Posts <FaFire className="inline-block text-[#ff6b6b]" /></h3>
           {loading ? (
             <p className="text-[#f6f1eb99]">Loading posts...</p>
           ) : apiError ? (
             <p className="text-red-400">{apiError}</p>
           ) : (
             <div className="space-y-4 text-[#f6f1eb]">
-              {posts.map((post) => (
-                <div key={post._id} className="border-b border-[#ffffff30] pb-2">
-                  <h4 className="text-lg font-semibold">{post.title}</h4>
-                  <p className="text-sm text-[#f6f1eb99]">{post.body}</p>
-                  <p className="text-sm text-[#f6f1eb99]">{post.description}</p>
-                </div>
-              ))}
+              {posts.length > 0 ? (
+                posts.map((post) => (
+                  <div key={post._id} className="border-b border-[#ffffff30] pb-4 p-4 bg-[#22263a] rounded-lg shadow-md">
+                    <Link to={`/posts/${post._id}`} className="text-lg font-semibold text-[#ff6b6b] hover:underline">
+                      {post.title}
+                    </Link>
+                    <p className="text-sm text-[#f6f1eb99]">{post.description}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[#f6f1eb99]">No trending posts yet.</p>
+              )}
             </div>
           )}
-        </div> */}
+        </div>
       </motion.div>
-
-      <footer className="w-full bg-[#ffffff0a] p-4 text-center text-[#f6f1eb99] mt-8 border-t border-[#3e2e4a]">
-        <p>© 2025 InkSpire. All Rights Reserved.</p>
-      </footer>
     </div>
   );
 };
 
 export default HomePage;
-
-
-
-
