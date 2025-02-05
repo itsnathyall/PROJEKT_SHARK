@@ -10,23 +10,22 @@ const AuthPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-
+    setError("");
+  
     try {
       const response = await fetch("http://localhost:3000/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
         console.log("Login successful:", data);
         localStorage.setItem("authToken", data.authToken);
-        
-        // Redirect to home page
-        console.log("Navigating to /home");
+        localStorage.setItem("user", JSON.stringify(data.user));
+  
         navigate("/home");
       } else {
         setError(data.message);

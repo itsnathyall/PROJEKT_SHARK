@@ -121,7 +121,7 @@ const HomePage = () => {
           Create New Post
         </motion.button>
 
-        <div className="mt-10 p-6 bg-[#ffffff0a] backdrop-blur-md rounded-xl shadow-lg border border-[#3e2e4a]">
+        {/* <div className="mt-10 p-6 bg-[#ffffff0a] backdrop-blur-md rounded-xl shadow-lg border border-[#3e2e4a]">
           <h3 className="text-xl font-semibold text-[#f6f1eb] mb-4">Recent Posts</h3>
           {loading ? (
             <p className="text-[#f6f1eb99]">Loading posts...</p>
@@ -138,7 +138,7 @@ const HomePage = () => {
               ))}
             </div>
           )}
-        </div>
+        </div> */}
       </motion.div>
 
       <footer className="w-full bg-[#ffffff0a] p-4 text-center text-[#f6f1eb99] mt-8 border-t border-[#3e2e4a]">
