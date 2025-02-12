@@ -23,7 +23,7 @@ const AuthPage = () => {
 
       if (response.ok) {
         console.log("Login successful:", data);
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("authToken", data.authToken);
         
         // Redirect to home page
         console.log("Navigating to /home");

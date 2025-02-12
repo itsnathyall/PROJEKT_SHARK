@@ -2,6 +2,8 @@ const express = require('express');
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
 const {User, Story, ConnectToDb} = require("../db.js");
+const {caretTrimReplace} = require("semver/internal/re");
+const { authenticateToken } = require("./auth.js");
 require('dotenv').config();
 
 const router = express.Router();
@@ -9,20 +11,82 @@ const router = express.Router();
 
 //Posting Routes
 
-//Create a post
-
-router.post('/', async (req,res)=>{
-    const newStory = new Story(req.body);
+// Create a post
+router.post('/', authenticateToken, async (req, res) => {
     try {
+        const newStory = new Story({
+            ...req.body,
+            user_id: req.user.id,
+        });
+
         const savedStory = await newStory.save();
         res.status(200).json(savedStory);
-    }catch(err){
-        res.status(500).json(err);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error creating post', error: err.message });
     }
 });
 
-//Update a post
+// Comment
+router.post('/:id/comments', authenticateToken, async (req, res) => {
+    const { commentBody } = req.body;
+    const storyId = req.params.id;
 
+    if (!commentBody) {
+        return res.status(400).json({ message: 'Comment body is required.' });
+    }
+
+    try {
+        const story = await Story.findById(storyId);
+        if (!story) {
+            return res.status(404).json({ message: 'Story not found.' });
+        }
+
+        const newComment = {
+            commentOwner: req.user.id,
+            commentBody
+        };
+
+        story.comments.push(newComment);
+        await story.save();
+
+        res.status(201).json({ message: 'Comment added successfully', story });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to add comment' });
+    }
+});
+
+// Show all posts
+router.get('/', async (req, res) => {
+    try {
+        const stories = await Story.find();
+        res.status(200).json(stories);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error loading stories' });
+    }
+});
+
+// Get post
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const story = await Story.findById(id);
+
+        if (!story) {
+            return res.status(404).json({ message: 'Cannot find post with id ' + id });
+        }
+
+        res.status(200).json(story);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error loading stories with id ' + id });
+    }
+});
+
+
+// Update a post
 router.put("/:id", async (req,res)=>{
     try{
         const story = await Story.findById(req.params.id);
@@ -38,8 +102,37 @@ router.put("/:id", async (req,res)=>{
     }
 })
 
-//Like a post
+// Like a post
+router.post('/:id/like', authenticateToken, async (req, res) => {
+    const storyId = req.params.id;
+    const userId = req.user.id;
 
+    try {
+        const story = await Story.findById(storyId);
+        if (!story) {
+            return res.status(404).json({ message: 'Story not found.' });
+        }
+
+        const hasLiked = story.likedBy.includes(userId);
+
+        if (hasLiked) {
+            // like
+            story.likedBy.pull(userId);
+            story.likes -= 1;
+            await story.save();
+            return res.status(200).json({ message: 'Like removed.', likes: story.likes });
+        } else {
+            // unlike
+            story.likedBy.push(userId);
+            story.likes += 1;
+            await story.save();
+            return res.status(200).json({ message: 'Like added.', likes: story.likes });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to update like status.' });
+    }
+});
 
 
 
