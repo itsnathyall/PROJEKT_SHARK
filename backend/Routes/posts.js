@@ -68,6 +68,24 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Get post
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const story = await Story.findById(id);
+
+        if (!story) {
+            return res.status(404).json({ message: 'Cannot find post with id ' + id });
+        }
+
+        res.status(200).json(story);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error loading stories with id ' + id });
+    }
+});
+
+
 // Update a post
 router.put("/:id", async (req,res)=>{
     try{
